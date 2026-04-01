@@ -16,8 +16,7 @@ McKinsey의 MECE(Mutually Exclusive, Collectively Exhaustive) 원칙과 Diagnost
   - [Why Tree — 원인을 깊이 파고들기](#why-tree--원인을-깊이-파고들기)
   - [Pruning — 검증하고 가지치기](#pruning--검증하고-가지치기)
 - [Adaptive Depth — 복잡도별 분석 깊이](#adaptive-depth--복잡도별-분석-깊이)
-- [실제 적용 사례: 기술 SEO 분석](#실제-적용-사례-기술-seo-분석)
-- [발표용 예시 모음](#발표용-예시-모음)
+- [실제 적용 사례: SEO 분석의 진화](#실제-적용-사례-seo-분석의-진화)
 - [장점](#장점)
 - [사용법](#사용법)
 - [파일 구조](#파일-구조)
@@ -246,27 +245,75 @@ graph LR
 
 ---
 
-## 실제 적용 사례
+## 실제 적용 사례: SEO 분석의 진화
 
-### SEO 체크리스트 누락 점검
+Next.js 프로젝트의 기술 SEO 분석에 MECE Diagnostic을 적용하면서 **3단계에 걸쳐 개선**한 과정입니다.
 
-Next.js 프로젝트의 SEO 체크리스트에 빠진 항목이 있는지 `/mece-diagnostic`으로 전수 점검한 사례입니다.
+### Phase 1: 순수 MECE만으로 SEO 분석
 
-**입력**: `/mece-diagnostic @seo-check.md 에서 빠진 사항 있을지 확인해줘`
+AI와 대화하며 SEO 이슈를 하나씩 검토 → MECE 구조(3테마)로 재구성한 첫 분석.
 
-**결과**: 16개 가지로 MECE 분해 → 코드 검증 → **누락 4건 발견, 가설 5건 기각**
-
-| 결과 요약 | |
+| 항목 | 내용 |
 |---|---|
-| Issue Tree 가지 수 | 16개 (테크니컬 / 온페이지 / 성능 / 오프페이지) |
-| 이슈 발견 | 4건 (사이트맵 동적 생성, INP 모니터링, 보안 헤더, 합계 오기) |
-| 기각 (Pruning) | 5건 (hreflang, next/link, trailing slash, noindex, lang) |
-| 문제 없음 확인 | 7건 |
+| **방법** | 순수 MECE 분해 (AI 대화 기반) |
+| **구조** | 3테마: 크롤링 낭비 / 성능+인덱싱 / Astro 전환 |
+| **발견** | 7개 문제 (canonical, TTFB, TinyMCE, 미색인, 404, Astro, 기타) |
+| **강점** | 테마별 선택지→결정→근거 흐름 일관, Google 공식 문서 인용 충실 |
+| **약점** | "코드에 있는 것"은 찾지만, **"코드에 없는 것"(누락)은 놓침** |
 
-> **전체 분석 결과**: [examples/seo-check-mece-diagnostic.md](examples/seo-check-mece-diagnostic.md)
+> **결과물**: [examples/phase1-pure-mece-seo-analysis.md](examples/phase1-pure-mece-seo-analysis.md)
+
+<!-- ![Phase 1 대화](examples/screenshots/phase1-conversation.png) -->
+
+### Phase 2: MECE + SEO 전문가 에이전트 결합
+
+Phase 1의 한계를 보완하기 위해 SEO 도메인 지식을 가진 전문가 에이전트를 MECE 프레임워크와 결합.
+
+| 항목 | 내용 |
+|---|---|
+| **방법** | MECE Issue Tree 수립 → SEO 전문가 에이전트 3개가 병렬 코드 검증 |
+| **구조** | 5테마: 크롤링 / 성능+인덱싱 / Astro / Core Web Vitals / 콘텐츠 시그널 |
+| **발견** | Phase 1 대비 **새로 발견된 이슈들**: |
+| | - 챌린지 카드가 `router.push`만 → 크롤러가 상세 페이지를 발견 불가 |
+| | - 인증 gate가 SSR 데이터 렌더링을 차단 → LCP 악화 |
+| | - Radix UI CSS 788KB 전역 로드 |
+| | - OG 이미지 465~700KB 과대 |
+| **Day 1 → 최종** | "기존 분석이 대부분 커버" → "코드에 없는 것과 런타임 동작까지 추적 필요" |
+
+> **결과물**: [examples/phase2-mece-plus-agent-seo-analysis.md](examples/phase2-mece-plus-agent-seo-analysis.md)
+
+<!-- ![Phase 2 대화](examples/screenshots/phase2-conversation.png) -->
+
+### Phase 3: Cross-check (MECE로 기존 문서 점검)
+
+완성된 SEO 문서 자체를 `/mece-diagnostic`으로 전수 점검 — 빠진 항목이 없는지 확인.
+
+| 항목 | 내용 |
+|---|---|
+| **방법** | `/mece-diagnostic @seo-check.md 에서 빠진 사항 있을지 확인해줘` |
+| **결과** | 16개 가지로 분해 → 누락 4건 발견, 가설 5건 기각 |
+
+> **결과물**: [examples/seo-check-mece-diagnostic.md](examples/seo-check-mece-diagnostic.md)
+
+<!-- ![Phase 3 대화](examples/screenshots/phase3-conversation.png) -->
+
+### 배운 것: MECE는 사고 방식, 지식은 별도 관리
+
+| | MECE (사고 프레임워크) | 전문가 에이전트 (도메인 지식) |
+|---|---|---|
+| **역할** | 빠짐없이 분해하고 전수 검증 | "어디를 봐야 하는지" 알려줌 |
+| **한계** | 도메인 지식이 없으면 가지가 얕음 | 구조 없이 쓰면 중요한 걸 놓침 |
+| **단독 사용** | 구조는 좋지만 깊이 부족 | 깊이는 있지만 빠짐 발생 |
+
+**결론: 결합형 사용이 가장 효과적**
+
+1. MECE가 **빠짐없는 구조**를 잡고
+2. 전문가 에이전트가 **도메인 깊이**를 채우고
+3. 도메인 지식은 **별도 파일**([agents/seo-knowledge.md](agents/seo-knowledge.md))로 관리
+
+이렇게 하면 MECE의 범용성은 유지하면서, 도메인별로 깊이를 확장할 수 있습니다.
 
 <!-- 대화 스크린샷은 examples/screenshots/ 에 추가 예정 -->
-<!-- ![대화 캡처](examples/screenshots/seo-check-conversation.png) -->
 
 ---
 
@@ -346,13 +393,17 @@ cp -r skill/* ~/.claude/skills/mece-diagnostic/
 ## 파일 구조
 
 ```
-skill/
-├── SKILL.md                # 메인 스킬 정의 (프레임워크 전체)
-├── complexity-guide.md     # 복잡도 판단 가이드 (Light/Standard/Deep)
-└── templates.md            # Issue Tree, Why Tree, 가설 카드 등 템플릿
-examples/
-├── seo-check-mece-diagnostic.md   # 실제 적용 결과물 (SEO 체크리스트 점검)
-└── screenshots/                   # 대화 캡처 이미지
+skill/                                          # Claude Code 스킬 파일
+├── SKILL.md                                    # 메인 스킬 정의 (프레임워크 전체)
+├── complexity-guide.md                         # 복잡도 판단 가이드 (Light/Standard/Deep)
+└── templates.md                                # Issue Tree, Why Tree, 가설 카드 등 템플릿
+examples/                                       # 실제 적용 결과물
+├── phase1-pure-mece-seo-analysis.md            # Phase 1: 순수 MECE SEO 분석
+├── phase2-mece-plus-agent-seo-analysis.md      # Phase 2: MECE + 전문가 에이전트 결합
+├── seo-check-mece-diagnostic.md                # Phase 3: 기존 문서 cross-check
+└── screenshots/                                # 대화 캡처 이미지
+agents/                                         # 도메인 지식 (MECE와 분리 관리)
+└── seo-knowledge.md                            # SEO 분석 시 참고할 도메인 지식
 ```
 
 ---
