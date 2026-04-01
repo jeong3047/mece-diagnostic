@@ -1,4 +1,4 @@
-# MECE Diagnostic
+# MECE Diagnostic (미씨 다이아그노스틱)
 
 **AI 코드 어시스턴트를 위한 구조화된 문제 분석 프레임워크**
 
