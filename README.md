@@ -20,7 +20,6 @@ McKinsey의 MECE(Mutually Exclusive, Collectively Exhaustive) 원칙과 Diagnost
 - [장점](#장점)
 - [사용법](#사용법)
 - [파일 구조](#파일-구조)
-- [배경](#배경)
 
 ---
 
@@ -102,38 +101,32 @@ AI에게 원인 분석을 맡기면, **첫 번째로 떠오른 원인에 바로 
 
 ## 프레임워크 흐름
 
-```mermaid
-flowchart TD
-    START["문제 발생 / 확인 요청 접수"] --> DEF["0. 문제 정의<br/>경계 | 성공 기준 | 시간"]
-    DEF --> DAY1["0-1. Day 1 Answer<br/>'지금 아는 것만으로 답하면?'"]
-    DAY1 --> DEPTH{"복잡도 판단"}
-
-    DEPTH -->|"원인 1~2개"| LIGHT["Light"]
-    DEPTH -->|"원인 복수"| STD["Standard"]
-    DEPTH -->|"시스템 레벨"| DEEP["Deep"]
-
-    LIGHT --> IT["1. Issue Tree<br/>MECE 분해"]
-    STD --> IT
-    DEEP --> IT
-
-    IT --> BR["1-1. Branch Registry<br/>말단 가지 전수 등록"]
-    BR --> WT["2. Why Tree<br/>원인 MECE 분해"]
-    WT --> HYP["3. 가설 설정<br/>데이터 전에 가설 먼저"]
-    HYP --> PM["4. Priority Matrix<br/>Impact × Evidence"]
-    PM --> VERIFY["5. 검증 + Pruning<br/>반증 → 즉시 기각"]
-    VERIFY --> CG{"6. Coverage Gate<br/>⬜ = 0개?"}
-
-    CG -->|"⬜ 남음"| VERIFY
-    CG -->|"모두 판정"| SW["7. So What?<br/>'그래서 뭐?'"]
-
-    SW --> PYRAMID["8. 결론<br/>피라미드 원칙"]
-
-    style START fill:#ff6b6b,color:#fff
-    style CG fill:#f39c12,color:#fff
-    style PYRAMID fill:#2ecc71,color:#fff
+```
+문제 발생 / 확인 요청 접수
+  │
+  ▼
+문제 정의 (경계, 성공 기준, 시간)  ─── "뭘 확인해야 하는가?"
+  │
+  ▼
+Day 1 Answer  ──────────────────── "지금 아는 것만으로 답하면?"
+  │
+  ▼
+Issue Tree (MECE 분해)  ────────── 가능한 원인을 빠짐없이 나열
+  │
+  ▼
+Branch Registry  ───────────────── 모든 말단 가지에 번호 매기기
+  │
+  ▼
+Why Tree → 가설 → 검증  ────────── 반증되면 즉시 기각 (Kill Fast)
+  │
+  ▼
+Coverage Gate  ─────────────────── ⬜가 0개여야 결론 가능
+  │
+  ▼
+결론 (피라미드 원칙)  ──────────── 결론 먼저, 근거는 아래에
 ```
 
-아래에서 핵심 단계를 구체적인 예시와 함께 설명합니다.
+아래에서 핵심 단계를 예시와 함께 설명합니다.
 
 ### Issue Tree — 문제를 MECE하게 분해
 
@@ -421,19 +414,6 @@ examples/                                       # 실제 적용 결과물
 agents/                                         # 도메인 지식 (MECE와 분리 관리)
 └── seo-knowledge.md                            # SEO 분석 시 참고할 도메인 지식
 ```
-
----
-
-## 배경
-
-이 프레임워크는 McKinsey의 문제 해결 방법론을 기반으로 합니다:
-
-- **MECE 원칙** — Mutually Exclusive, Collectively Exhaustive (상호배타적, 전체포괄적)
-- **Diagnostic Pruning** — 가설을 세우고 반증으로 가지치기
-- **피라미드 원칙** — 결론 먼저, 근거는 아래로
-- **Day 1 Answer** — 불완전해도 초기 가설부터 세우기
-
-이를 소프트웨어 엔지니어링 컨텍스트에 맞게 재해석하여, AI 코드 어시스턴트가 구조화된 사고를 하도록 강제하는 스킬로 구현했습니다.
 
 ---
 
